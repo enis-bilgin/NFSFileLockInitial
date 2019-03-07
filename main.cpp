@@ -17,7 +17,10 @@ int main (int argc, char* argv[])
     memset (&lock, 0, sizeof(lock));
     lock.l_type = F_WRLCK;
 /* Place a write lock on the file. */
-    fcntl (fd, F_SETLKW, &lock);
+    while(fcntl (fd, F_SETLKW, &lock)==-1){
+        printf ("Already Locked! ");
+        sleep(5);
+    };
 
     printf ("locked; hit Enter to unlock... ");
 /* Wait for the user to hit Enter. */
