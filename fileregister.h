@@ -63,10 +63,12 @@ public:
                 while(true) {
                     {
                         fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
+                        LOG(INFO) << "Writing";
                         std::this_thread::sleep_for(std::chrono::milliseconds(3000));
                        // write(eachEntry.fd, "Writing from Thread and then Sleep for 5 milliseconds\n", 54); // write
                     }
                     // unlock after 5 ms
+                    LOG(INFO) << "Sleeping";
                     std::this_thread::sleep_for(std::chrono::milliseconds(4000));
 
 
