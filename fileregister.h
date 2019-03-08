@@ -6,6 +6,10 @@
 #include <algorithm>
 #include <glog/logging.h>
 
+// sleep
+#include <chrono>
+#include <thread>
+
 // Lock / Unlock class
 #include "fnctlRAIILock.h"
 
@@ -51,17 +55,40 @@ public:
         }));
     }
 
-    void lockFileToWrite() {
-        for(auto eachEntry : fileList){
-            LOG(WARNING) << "ACQUIRING LOCK ";
-            fnctlRaiiLock lock_guard(eachEntry.fd);
-            LOG(WARNING) << "----Critical Section-----";
-            LOG(WARNING) << "----Critical Section-----";
-            LOG(WARNING) << "----Critical Section-----";
-            sleep(6);
-            LOG(WARNING) << "RELEASING LOCK ";
+
+
+    void lockFileToWrite(std::string& filenametowrite) {
+        for(auto eachEntry : fileList) {
+            if(eachEntry.filename == filenametowrite){
+                while(true) {
+                    {
+                        fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
+                        write(eachEntry.fd, "Writing from Thread and then Sleep for 5 milliseconds\n", 54); // write
+                    }
+                    // unlock after 5 ms
+                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                }
+            }
         }
     }
+
+
+    void readLockedFiles(std::string& filenametoread){
+        for(auto eachEntry : fileList){
+            if(eachEntry.filename == filenametoread){
+                while(true) {
+                    fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
+                    char readLine[60];
+                    read(eachEntry.fd,readLine,54);
+                    printf("%s", readLine);
+                    // unlocked
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+                }
+            }
+        }
+    }
+
 
 
 private:

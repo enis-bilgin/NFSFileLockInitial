@@ -31,9 +31,9 @@ public:
 
     // unlock on destruction
     ~fnctlRaiiLock(){
-        fileDescriptor_ = int(); // reset fd
         raiLocker_.locker_.l_type = F_UNLCK;
         fcntl (fileDescriptor_, F_SETLKW, &raiLocker_); // unlock
+        fileDescriptor_ = int(); // reset fd
         LOG(INFO) << "UNLOCKED ";
     }
 
