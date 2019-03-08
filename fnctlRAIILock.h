@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <glog/logging.h>
 
 /*
  * fnctl struct wrapper
@@ -25,14 +26,16 @@ public:
     explicit fnctlRaiiLock(int fd){
         fileDescriptor_ = fd;
         fcntl (fileDescriptor_, F_SETLKW, &raiLocker_);
+        LOG(INFO) << "LOCKED " << fd;
     }
 
     // unlock on destruction
     ~fnctlRaiiLock(){
         fileDescriptor_ = int(); // reset fd
+        raiLocker_.locker_.l_type = F_UNLCK;
         fcntl (fileDescriptor_, F_SETLKW, &raiLocker_); // unlock
+        LOG(INFO) << "UNLOCKED ";
     }
-
 
 
 private:

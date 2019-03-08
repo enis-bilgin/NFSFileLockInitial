@@ -7,7 +7,7 @@
 #include <glog/logging.h>
 
 // Lock / Unlock class
-#include <fcntl.h>
+#include "fnctlRAIILock.h"
 
 
 
@@ -15,7 +15,7 @@
 
 struct FileEntry {
     std::string filename; // file directory
-    int fd{}; // file descriptor
+    int fd; // file descriptor
 };
 
 
@@ -37,11 +37,11 @@ public:
         singleFileEntry.fd = open(filename.c_str(), O_WRONLY);
 
         // Success / Fail Log
-        if(fileList.back().fd != -1){
-            fileList.push_back(singleFileEntry);
-            LOG(INFO) << "File Entry Success for File: " << filename;
+        if(singleFileEntry.fd != openFail){
+            fileList.emplace_back(singleFileEntry);
+            LOG(INFO) << "File Entry SUCCESS for File: " << filename;
         } else{
-            LOG(INFO) << "File Entry Failed for File: " << filename;
+            LOG(INFO) << "File Entry FAILED for File: " << filename;
         }
     }
 
@@ -49,6 +49,18 @@ public:
         fileList.erase(std::remove_if(fileList.begin(), fileList.end(), [&](FileEntry const& fileEntry){
             return fileEntry.filename == filenameremove;
         }));
+    }
+
+    void lockFileToWrite() {
+        for(auto eachEntry : fileList){
+            LOG(WARNING) << "ACQUIRING LOCK ";
+            fnctlRaiiLock lock_guard(eachEntry.fd);
+            LOG(WARNING) << "----Critical Section-----";
+            LOG(WARNING) << "----Critical Section-----";
+            LOG(WARNING) << "----Critical Section-----";
+            sleep(6);
+            LOG(WARNING) << "RELEASING LOCK ";
+        }
     }
 
 
@@ -59,6 +71,8 @@ private:
         for(auto fileEntry : fileList)
             close(fileEntry.fd);
     }
+
+    const int openFail = -1;
 
     // delete these
     FileRegister(const FileRegister&)           = delete;
