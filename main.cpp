@@ -42,7 +42,7 @@ int main (int argc, char* argv[]) {
     // 1 Lock for each File RAII Type
     FileRegister::instance().lockFileToWrite(filename2);
 
-    //FileRegister::instance().readLockedFiles(filename2);
+//    FileRegister::instance().readLockedFiles(filename2);
 
 
 }
