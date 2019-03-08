@@ -7,35 +7,63 @@
 // timer
 #include <time.h>
 
+// custom classes
+#include "fnctlRAIILock.h"
+#include "fileregister.h"
+
+// glog
+#include <glog/logging.h>
+#include <gflags/gflags.h>
 
 
 
 
 
-int main (int argc, char* argv[])
-{
-    // some timing
-    int msecond = 0, trigger = 10;
+static long get_nanos(void){
+    struct timespec ts;
+    timespec_get(&ts, TIME_UTC);
+    return (long)ts.tv_sec*1000000000L + ts.tv_nsec;
 
-    char* file = "/home/ubuntu/MultiRunTest/multiLockTest.txt";
+}
+
+int main (int argc, char* argv[]) {
+
+
+    gflags::ParseCommandLineFlags(&argc,&argv,true);
+    google::InitGoogleLogging(argv[0]);
+
+    FLAGS_logtostderr = true;
+
+    std::string filename = "/home/ubuntu/MultiRunTest/multiLockTest.txt";
     int fd;
+
     struct flock lock;
 
-    printf ("opening %s\n", file);
-/* Open a file descriptor to the file. */
-    fd = open (file, O_WRONLY);
+    printf ("opening %s\n", filename.c_str());
+
+    // Open a file descriptor to the file
+    fd = open (filename.c_str(), O_WRONLY);
     printf ("locking\n");
-/* Initialize the flock structure. */
+
+
+    // Initialize the flock structure
     memset (&lock, 0, sizeof(lock));
     lock.l_type = F_WRLCK;
-/* Place a write lock on the file. */
+
+    auto start = get_nanos();
+
+    // Place a write lock on the file
     if(fcntl (fd, F_SETLKW, &lock)==-1){
         printf("Lock not succcessful?");
     }
+    auto end = get_nanos();
 
+    LOG(INFO) << "Time Taken to Lock in Miliseconds:" << end-start;
 
     printf ("locked; hit Enter to unlock... ");
-/* Wait for the user to hit Enter. */
+
+
+    // Wait for the user to hit Enter.
     getchar ();
 
 
@@ -45,16 +73,8 @@ int main (int argc, char* argv[])
 
 
 /* Release the lock. */
-    clock_t before = clock();
-
     lock.l_type = F_UNLCK;
     fcntl (fd, F_SETLKW, &lock);
-
-
-    clock_t difference = clock() - before;
-    msecond = difference * 1000 / CLOCKS_PER_SEC;
-
-    printf ("Time Taken to Unlock in Miliseconds: (%d)\n", msecond%1000);
 
     close (fd);
     return 0;
