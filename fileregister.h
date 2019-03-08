@@ -63,10 +63,12 @@ public:
                 while(true) {
                     {
                         fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
-                        write(eachEntry.fd, "Writing from Thread and then Sleep for 5 milliseconds\n", 54); // write
+                        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+                       // write(eachEntry.fd, "Writing from Thread and then Sleep for 5 milliseconds\n", 54); // write
                     }
                     // unlock after 5 ms
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(4000));
+
 
                 }
             }
@@ -80,12 +82,14 @@ public:
                 while(true) {
                     {
                         fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
-                        char readLine[60];
-                        read(eachEntry.fd,readLine,54);
-                        LOG(INFO) << "reading: " << readLine;
+                        // unlocked
+                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+//                        char readLine[60];
+                        //read(eachEntry.fd,readLine,54);
+                        LOG(INFO) << "reading:" ;
                     }
-                    // unlocked
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
 
                 }
 
