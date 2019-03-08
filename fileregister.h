@@ -66,7 +66,7 @@ public:
                         write(eachEntry.fd, "Writing from Thread and then Sleep for 5 milliseconds\n", 54); // write
                     }
                     // unlock after 5 ms
-                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
                 }
             }
@@ -77,16 +77,18 @@ public:
     void readLockedFiles(std::string& filenametoread){
         for(auto eachEntry : fileList){
             if(eachEntry.filename == filenametoread){
-                LOG(INFO) << "READING";
                 while(true) {
-                    fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
-                    char readLine[60];
-                    read(eachEntry.fd,readLine,54);
-                    LOG(INFO) << readLine;
+                    {
+                        fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
+                        char readLine[60];
+                        read(eachEntry.fd,readLine,54);
+                        LOG(INFO) << "reading: " << readLine;
+                    }
                     // unlocked
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
                 }
+
             }
         }
     }
