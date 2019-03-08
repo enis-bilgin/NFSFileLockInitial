@@ -64,9 +64,9 @@ public:
                     {
                         fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
                         write(eachEntry.fd, "Writing from Thread and then Sleep for 5 milliseconds\n", 54); // write
-                        // unlock after 5 ms
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
                     }
+                    // unlock after 5 ms
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
                 }
             }
