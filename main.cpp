@@ -40,9 +40,9 @@ int main (int argc, char* argv[]) {
     FileRegister::instance().addNewFile(filename2);
 
     // 1 Lock for each File RAII Type
-    FileRegister::instance().lockFileToWrite(filename2);
+//    FileRegister::instance().lockFileToWrite(filename2);
 
-//    FileRegister::instance().readLockedFiles(filename2);
+    FileRegister::instance().readLockedFiles(filename2);
 
 
 }

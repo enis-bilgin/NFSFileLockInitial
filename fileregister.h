@@ -14,9 +14,6 @@
 #include "fnctlRAIILock.h"
 
 
-
-
-
 struct FileEntry {
     std::string filename; // file directory
     int fd; // file descriptor
@@ -67,7 +64,6 @@ public:
                         std::this_thread::sleep_for(std::chrono::milliseconds(3000));
                        // write(eachEntry.fd, "Writing from Thread and then Sleep for 5 milliseconds\n", 54); // write
                     }
-                    // unlock after 5 ms
                     LOG(INFO) << "Sleeping";
                     std::this_thread::sleep_for(std::chrono::milliseconds(4000));
 
@@ -85,11 +81,11 @@ public:
                     {
                         fnctlRaiiLock guardfnctl(eachEntry.fd); // locked
                         // unlocked
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
 //                        char readLine[60];
                         //read(eachEntry.fd,readLine,54);
-                        LOG(INFO) << "reading:" ;
+                        LOG(INFO) << "Reading" ;
                     }
 
 
@@ -105,8 +101,13 @@ private:
     FileRegister() {} // ctor
 
     ~FileRegister() { // on destruction close files
-        for(auto fileEntry : fileList)
+        for(auto fileEntry : fileList){
+            // sleep 2 sec before close
+            // it should not close the fd before releases the lock
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
             close(fileEntry.fd);
+        }
+
     }
 
     const int openFail = -1;
